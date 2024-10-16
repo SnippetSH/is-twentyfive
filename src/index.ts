@@ -67,7 +67,7 @@ export function is(n: number | number[] | object | string): IIs {
         within: (y: number) => ({
             twentyFive: () => !(check as IIs).within(y).twentyFive()
         }),
-        not: check as IIs // 체이닝을 위해 다시 원래 상태로 돌아가기
+        not: check as IIs
 
     }
     return check as IIs;
