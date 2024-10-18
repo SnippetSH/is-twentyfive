@@ -6,31 +6,39 @@ on:
       - main
 
 jobs:
-  publish-npm-and-github:
+  publish-npm-registry:
     runs-on: ubuntu-latest
-
     steps:
       - uses: actions/checkout@v2
-
       - uses: actions/setup-node@v1
         with:
-          node-version: 20
-
+          node-version: 12
+          registry-url: https://registry.npmjs.org/
       - run: npm install
       - run: npm run build
+      - run: npm run test
       - run: cd dist
-
-      # NPM registry publish
-      - name: Publish to npm
-        run: npm publish
+      - run: npm publish
         env:
-          NODE_AUTH_TOKEN: ${{ secrets.npm_token }}
+          NODE_AUTH_TOKEN: ${{secrets.npm_token}}
 
+
+  publish-github-registry:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v2
+      - uses: actions/setup-node@v1
+        with:
+          node-version: 12
+          registry-url: https://npm.pkg.github.com/
+      - run: npm install
+      - run: npm run build
       # GitHub Packages publish (modify package.json before publishing)
       - name: Prepare package.json for GitHub Packages
         run: |
           sed -i 's/"name": "is-twentyfive"/"name": "@SnippetSH\/is-twentyfive"/' package.json
 
+      - run: cd dist
       - name: Publish to GitHub Packages
         run: npm publish --registry=https://npm.pkg.github.com/
         env:
@@ -39,3 +47,5 @@ jobs:
       # Revert the package.json change
       - name: Revert package.json change
         run: git checkout package.json
+        env:
+          NODE_AUTH_TOKEN: ${{secrets.GITHUB_TOKEN}}
