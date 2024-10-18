@@ -1,40 +1,41 @@
 name: on release
 
 on:
-  release:
-    types: [created]
   push:
     branches:
       - main
 
 jobs:
-  publish-npm-registry:
+  publish-npm-and-github:
     runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v2
-      - uses: actions/setup-node@v1
-        with:
-          node-version: 20
-          registry-url: https://registry.npmjs.org/
-      - run: npm install
-      - run: npm run build
-      - run: npm run test
-      - run: cd dist
-      - run: npm publish
-        env:
-          NODE_AUTH_TOKEN: ${{secrets.npm_token}}
 
-  publish-github-registry:
-    runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v2
+
       - uses: actions/setup-node@v1
         with:
           node-version: 20
-          registry-url: https://npm.pkg.github.com/
+
       - run: npm install
       - run: npm run build
       - run: cd dist
-      - run: npm publish
+
+      # NPM registry publish
+      - name: Publish to npm
+        run: npm publish
         env:
-          NODE_AUTH_TOKEN: ${{secrets.GITHUB_TOKEN}}
+          NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
+
+      # GitHub Packages publish (modify package.json before publishing)
+      - name: Prepare package.json for GitHub Packages
+        run: |
+          sed -i 's/"name": "is-twentyfive"/"name": "@SnippetSH\/is-twentyfive"/' package.json
+
+      - name: Publish to GitHub Packages
+        run: npm publish --registry=https://npm.pkg.github.com/
+        env:
+          NODE_AUTH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+      # Revert the package.json change
+      - name: Revert package.json change
+        run: git checkout package.json

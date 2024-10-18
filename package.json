@@ -1,5 +1,5 @@
 {
-  "name": "is-twentyfive",
+  "name": "is-twentyfive", 
   "version": "2.0.1",
   "main": "dist/index.js",
   "types": "dist/index.d.ts",
@@ -21,5 +21,12 @@
   },
   "files": [
     "dist"
-  ]
+  ],
+  "publishConfig": {
+    "registry": "https://registry.npmjs.org/" 
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/SnippetSH/is-twentyfive"
+  }
 }
